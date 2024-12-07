@@ -32,9 +32,9 @@ const TEAMID = "NS279G83V7";
 const APNPrivatekey = "./src/APN_AuthKey_M33FAQMH3G.p8";
 
 // Configuration
-const scoreTimerDec = `0 * */2 * * *`; // Every 2 hours at 0 mins
-const scoreTimerCheck = `10 * */2 * * *`; // Every 2 hours at 10 mins
-const ageTimer = `0 * */3 * * *`; // Every 3 hrs 0mins
+const scoreTimerDec = `* */2 * * *`; // Every 2 hours at 0 mins
+const scoreTimerCheck = `* * */2 * * *`; // Every 2 hours at 10 mins
+const ageTimer = `* */3 * * *`; // Every 3 hrs 0mins
 
 const FOOD = "FOOD";
 const PLAY = "PLAY";
@@ -331,16 +331,17 @@ app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 
   // **Service 1**: Decrease all numbers by X every 10 seconds
-  cron.schedule(scoreTimerDec, () => {
-    console.log("Running decreaseValuesByX service...");
-    decreaseValuesByX(); // Adjust the value of X as needed
-  });
+  // cron.schedule(scoreTimerDec, () => {
+  //   console.log("Running decreaseValuesByX service...");
+  //   decreaseValuesByX(); // Adjust the value of X as needed
+  //   checkValuesBelowY();
+  // });
 
   // **Service 2**: Check for values below Y every 5 minutes
-  cron.schedule(scoreTimerCheck, () => {
-    console.log("Running checkValuesBelowY service...");
-    checkValuesBelowY(); // Adjust the threshold Y as needed
-  });
+  // cron.schedule(scoreTimerCheck, () => {
+  //   console.log("Running checkValuesBelowY service...");
+  //   checkValuesBelowY(); // Adjust the threshold Y as needed
+  // });
 
   // Schedule the incrementAge service to run every 20 minutes
   cron.schedule(ageTimer, () => {
@@ -495,7 +496,7 @@ function incrementAgeForAllPets() {
           const newAge = currentAge + 1; // Increment age by 1
           const petPath = `${rootPath}/${userId}/PETS/${petId}`; // Construct the full path
           db.ref(petPath).set(newAge); // Update the database
-          // console.log(`Updated AGE at ${petPath}: ${currentAge} -> ${newAge}`);
+          console.log(`Updated AGE at ${petPath}: ${currentAge} -> ${newAge}`);
         } else {
           // console.log(
           //   `No valid number found at path: ${rootPath}/${userId}/PETS/${petId}`
