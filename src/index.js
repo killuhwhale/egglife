@@ -32,9 +32,9 @@ const TEAMID = "NS279G83V7";
 const APNPrivatekey = "./src/APN_AuthKey_M33FAQMH3G.p8";
 
 // Configuration
-const scoreTimerDec = `* */2 * * *`; // Every 2 hours at 0 mins
+const scoreTimerDec = `45 * * * *`; // Every 2 hours at 0 mins
 const scoreTimerCheck = `* * */2 * * *`; // Every 2 hours at 10 mins
-const ageTimer = `* */3 * * *`; // Every 3 hrs 0mins
+const ageTimer = `* */1 * * *`; // Every 3 hrs 0mins
 
 const FOOD = "FOOD";
 const PLAY = "PLAY";
