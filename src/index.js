@@ -331,11 +331,11 @@ app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 
   // **Service 1**: Decrease all numbers by X every 10 seconds
-  // cron.schedule(scoreTimerDec, () => {
-  //   console.log("Running decreaseValuesByX service...");
-  //   decreaseValuesByX(); // Adjust the value of X as needed
-  //   checkValuesBelowY();
-  // });
+  cron.schedule(scoreTimerDec, () => {
+    console.log("Running decreaseValuesByX service...");
+    decreaseValuesByX(); // Adjust the value of X as needed
+    checkValuesBelowY();
+  });
 
   // **Service 2**: Check for values below Y every 5 minutes
   // cron.schedule(scoreTimerCheck, () => {
