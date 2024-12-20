@@ -307,7 +307,7 @@ app.post("/generateCustomToken", async (req, res) => {
     // Generate a custom token
     const customToken = await admin.auth().createCustomToken(uid, customClaims);
     console.log("Generated Custom Token:", customToken);
-    await initializeUser(uid);
+    // await initializeUser(uid);
     await initializeUserPoints(uid);
 
     // Respond with the custom token
@@ -507,43 +507,43 @@ function incrementAgeForAllPets() {
   });
 }
 
-// Function to initialize user fields (AGE, FOOD, SLEEP, PLAY, WATER)
-async function initializeUser(uid) {
-  try {
-    const paths = ["AGE", "FOOD", "SLEEP", "PLAY", "WATER", "NAME"];
-    const petId = "PET0"; // Default first pet ID
-    const initialValues = 0; // Default starting value
+// // Function to initialize user fields (AGE, FOOD, SLEEP, PLAY, WATER)
+// async function initializeUser(uid) {
+//   try {
+//     const paths = ["AGE", "FOOD", "SLEEP", "PLAY", "WATER", "NAME"];
+//     const petId = "PET0"; // Default first pet ID
+//     const initialValues = 0; // Default starting value
 
-    // Iterate over each path and check/create data for the user
-    for (const path of paths) {
-      const userPath = `${path}/${uid}/PETS/${petId}`;
-      const ref = db.ref(userPath);
+//     // Iterate over each path and check/create data for the user
+//     for (const path of paths) {
+//       const userPath = `${path}/${uid}/PETS/${petId}`;
+//       const ref = db.ref(userPath);
 
-      // Check if the field already exists
-      const snapshot = await ref.once("value");
+//       // Check if the field already exists
+//       const snapshot = await ref.once("value");
 
-      if (!snapshot.exists()) {
-        // Create the field if it doesn't exist
+//       if (!snapshot.exists()) {
+//         // Create the field if it doesn't exist
 
-        if (path === "NAME") {
-          await ref.set("EggName");
-        } else {
-          await ref.set(initialValues);
-        }
+//         if (path === "NAME") {
+//           await ref.set("EggName");
+//         } else {
+//           await ref.set(initialValues);
+//         }
 
-        console.log(
-          `Initialized ${path} for user ${uid}: ${petId} -> ${initialValues}`
-        );
-      } else {
-        console.log(`${path} already exists for user ${uid}`);
-      }
-    }
+//         console.log(
+//           `Initialized ${path} for user ${uid}: ${petId} -> ${initialValues}`
+//         );
+//       } else {
+//         console.log(`${path} already exists for user ${uid}`);
+//       }
+//     }
 
-    console.log(`Initialization complete for user ${uid}`);
-  } catch (error) {
-    console.error("Error initializing user fields:", error);
-  }
-}
+//     console.log(`Initialization complete for user ${uid}`);
+//   } catch (error) {
+//     console.error("Error initializing user fields:", error);
+//   }
+// }
 
 async function initializeUserPoints(uid) {
   try {
