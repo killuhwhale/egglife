@@ -2,12 +2,15 @@ const express = require("express");
 const admin = require("firebase-admin");
 const bodyParser = require("body-parser");
 const cron = require("node-cron");
-
+const axios = require("axios");
 const path = require("path");
 const fs = require("fs");
 const http2 = require("http2");
 const jwt = require("jsonwebtoken");
 const util = require("util");
+
+const imagen = require("./imageGen");
+
 require("log-timestamp")(function () {
   const now = new Date();
   const options = {
@@ -70,6 +73,15 @@ const LOCK_FILE_PATH = path.resolve(__dirname, "jwt_token.lock"); // Path to the
 const writeFile = util.promisify(fs.writeFile);
 const readFile = util.promisify(fs.readFile);
 const unlink = util.promisify(fs.unlink);
+
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
 
 /// Helper: Wait for lock
 const waitForLock = async (lockFilePath) => {
@@ -278,13 +290,86 @@ admin.initializeApp({
     require("./petlife-15761-firebase-adminsdk-he02j-c2c6e9d51b.json")
   ),
   databaseURL: "https://petlife-15761-default-rtdb.firebaseio.com",
+  storageBucket: "gs://petlife-15761.firebasestorage.app",
 });
 
 const db = admin.database(); // Firebase Realtime Database reference
 
+var storageRef = admin.storage().bucket();
+
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
+app.post("/generateImage", async (req, res) => {
+  // Save to Google Drive Folder - User Generated Content: 1CnRt2mP-lmFiebto_zW_RsQSOeEi6hke
+  // TODO()
+  try {
+    console.log("Generating image");
+    console.log(req.body);
+    const prompt = req.body["prompt"];
+    const url = req.body["imageID"];
+    const mask = req.body["mask"];
+    const alteredUrl = await imagen.createImageVariation(url, mask, prompt);
+    res.json({ url: alteredUrl });
+  } catch (err) {
+    console.log("Error generating image: ", err);
+  }
+});
+
+app.post("/saveGeneratedImage", async (req, res) => {
+  try {
+    const url = req.body.alteredURL;
+    if (!url) {
+      return res.status(400).json({ error: "alteredURL is required" });
+    }
+
+    console.log("Downloading image from URL:", url);
+
+    // 1. Download the image
+    const response = await axios.get(url, { responseType: "arraybuffer" });
+    const buffer = Buffer.from(response.data, "binary");
+    const fileName = `image_${Date.now()}.png`;
+    const tempFilePath = path.join(__dirname, fileName);
+
+    // Save the file temporarily to disk
+    fs.writeFileSync(tempFilePath, buffer);
+
+    console.log("Image downloaded successfully:", fileName);
+
+    // 2. Upload the file to Firebase Storage
+    const destinationPath = `UGC/${fileName}`; // Specify your folder in storage
+    // let ugcRef = storageRef.child(destinationPath);
+    const upRes = await storageRef.upload(tempFilePath, {
+      destination: destinationPath,
+    });
+
+    console.log("Image uploaded to Firebase Storage:", destinationPath, upRes);
+
+    // Generate a public URL for the uploaded file
+    // const publicUrl = `https://storage.googleapis.com/${storage.name}/${destinationPath}`;
+    // console.log("Public URL:", publicUrl);
+
+    // 3. Clean up temporary file
+    fs.unlinkSync(tempFilePath);
+
+    // Return the public URL as the response
+    return res.status(200).json({ imageID: destinationPath });
+  } catch (error) {
+    console.error("Error uploading file to Firebase Storage:", error.message);
+    return res.status(500).json({ error: "Failed to upload image" });
+  }
+});
 // Verify ID Token and Generate Custom Token
 app.post("/generateCustomToken", async (req, res) => {
   const { idToken } = req.body;
@@ -331,24 +416,28 @@ app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 
   // **Service 1**: Decrease all numbers by X every 10 seconds
-  cron.schedule(scoreTimerDec, () => {
-    console.log("Running decreaseValuesByX service...");
-    decreaseValuesByX(); // Adjust the value of X as needed
-    checkValuesBelowY();
-  });
-
-  // **Service 2**: Check for values below Y every 5 minutes
-  // cron.schedule(scoreTimerCheck, () => {
-  //   console.log("Running checkValuesBelowY service...");
-  //   checkValuesBelowY(); // Adjust the threshold Y as needed
+  // cron.schedule(scoreTimerDec, () => {
+  // console.log("Running decreaseValuesByX service...");
+  // decreaseValuesByX(); // Adjust the value of X as needed
+  // checkValuesBelowY();
   // });
 
   // Schedule the incrementAge service to run every 20 minutes
-  cron.schedule(ageTimer, () => {
-    console.log("Running incrementAge service...");
-    incrementAgeForAllPets();
-  });
+  // cron.schedule(ageTimer, () => {
+  //   console.log("Running incrementAge service...");
+  //   incrementAgeForAllPets();
+  // });
 });
+
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
+// ########################################################
 
 // **Service 1**: Decrease all numbers by X periodically
 function decreaseValuesByX() {
@@ -506,44 +595,6 @@ function incrementAgeForAllPets() {
     }
   });
 }
-
-// // Function to initialize user fields (AGE, FOOD, SLEEP, PLAY, WATER)
-// async function initializeUser(uid) {
-//   try {
-//     const paths = ["AGE", "FOOD", "SLEEP", "PLAY", "WATER", "NAME"];
-//     const petId = "PET0"; // Default first pet ID
-//     const initialValues = 0; // Default starting value
-
-//     // Iterate over each path and check/create data for the user
-//     for (const path of paths) {
-//       const userPath = `${path}/${uid}/PETS/${petId}`;
-//       const ref = db.ref(userPath);
-
-//       // Check if the field already exists
-//       const snapshot = await ref.once("value");
-
-//       if (!snapshot.exists()) {
-//         // Create the field if it doesn't exist
-
-//         if (path === "NAME") {
-//           await ref.set("EggName");
-//         } else {
-//           await ref.set(initialValues);
-//         }
-
-//         console.log(
-//           `Initialized ${path} for user ${uid}: ${petId} -> ${initialValues}`
-//         );
-//       } else {
-//         console.log(`${path} already exists for user ${uid}`);
-//       }
-//     }
-
-//     console.log(`Initialization complete for user ${uid}`);
-//   } catch (error) {
-//     console.error("Error initializing user fields:", error);
-//   }
-// }
 
 async function initializeUserPoints(uid) {
   try {
