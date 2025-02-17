@@ -21,6 +21,7 @@ const petChat = async (context, prompt) => {
     console.log("completion: ", completion);
     return completion.choices[0].message;
   } catch (err) {
+    console.error("Error getting completion: ", err);
     return "Error getting mesage from pet. Maybe it is tired...";
   }
 };
