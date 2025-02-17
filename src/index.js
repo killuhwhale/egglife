@@ -329,7 +329,10 @@ app.post("/generateImage", async (req, res) => {
 
 app.post("/saveGeneratedImage", async (req, res) => {
   try {
+    // TODO() Update and get the userID and PET index from the request.
     const url = req.body.alteredURL;
+    const userID = req.body.userID;
+    const petIndex = req.body.petIndex;
     if (!url) {
       return res.status(400).json({ error: "alteredURL is required" });
     }
@@ -348,7 +351,8 @@ app.post("/saveGeneratedImage", async (req, res) => {
     console.log("Image downloaded successfully:", fileName);
 
     // 2. Upload the file to Firebase Storage
-    const destinationPath = `UGC/${fileName}`; // Specify your folder in storage
+    //TODO() Update the dest path to UGC/userID/Petindex/fileName
+    const destinationPath = `UGC/${userID}/${petIndex}/${fileName}`; // Specify your folder in storage
     // let ugcRef = storageRef.child(destinationPath);
     const upRes = await storageRef.upload(tempFilePath, {
       destination: destinationPath,
@@ -370,6 +374,38 @@ app.post("/saveGeneratedImage", async (req, res) => {
     return res.status(500).json({ error: "Failed to upload image" });
   }
 });
+
+//TODO implement deleteUserGeneratedImages
+app.post("/deleteUserGeneratedImages", async (req, res) => {
+  try {
+    // Extract userID and petIndex from the request body.
+    const userID = req.body.userID;
+    const petIndex = req.body.petIndex;
+
+    if (!userID || !petIndex) {
+      return res
+        .status(400)
+        .json({ error: "userID and petIndex are required" });
+    }
+
+    // Construct the folder path. Note the trailing slash.
+    const folderPath = `UGC/${userID}/${petIndex}/`;
+    console.log("Deleting images under folder:", folderPath);
+
+    // Delete all files under the folder. This uses the bucket's deleteFiles method.
+    // Ensure that storageRef is your Firebase Storage bucket reference.
+    await storageRef.deleteFiles({
+      prefix: folderPath,
+    });
+
+    console.log("Images deleted successfully from:", folderPath);
+    return res.status(200).json({ message: "Images deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user generated images:", error.message);
+    return res.status(500).json({ error: "Failed to delete images" });
+  }
+});
+
 // Verify ID Token and Generate Custom Token
 app.post("/generateCustomToken", async (req, res) => {
   const { idToken } = req.body;
