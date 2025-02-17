@@ -382,12 +382,12 @@ app.post("/petChat", async (req, res) => {
       req.body.context,
       req.body.message
     );
-    return res.JSON({ message: pet_message });
+    return res.json({ message: pet_message });
   } catch (err) {
     console.log("Error petChat: ", err);
   }
 
-  return res.JSON({ message: "Failed to get pet message." });
+  return res.json({ message: "Failed to get pet message." });
 });
 
 //TODO implement deleteUserGeneratedImages
