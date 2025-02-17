@@ -10,6 +10,7 @@ const jwt = require("jsonwebtoken");
 const util = require("util");
 
 const imagen = require("./imageGen");
+const PetChat = require("./petChat");
 
 require("log-timestamp")(function () {
   const now = new Date();
@@ -373,6 +374,20 @@ app.post("/saveGeneratedImage", async (req, res) => {
     console.error("Error uploading file to Firebase Storage:", error.message);
     return res.status(500).json({ error: "Failed to upload image" });
   }
+});
+
+app.post("/petChat", async (req, res) => {
+  try {
+    const pet_message = await PetChat.petChat(
+      req.body.context,
+      req.body.message
+    );
+    return res.JSON({ message: pet_message });
+  } catch (err) {
+    console.log("Error petChat: ", err);
+  }
+
+  return res.JSON({ message: "Failed to get pet message." });
 });
 
 //TODO implement deleteUserGeneratedImages
