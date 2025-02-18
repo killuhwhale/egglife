@@ -1,5 +1,7 @@
 const OpenAI = require("openai");
-const openai = new OpenAI();
+const openai = new OpenAI({
+  baseURL: "https://api.x.ai/v1",
+});
 
 const inputRate = 0.15 / 1_000_000;
 const outputRate = 0.6 / 1_000_000;
@@ -35,7 +37,8 @@ const thresholds = [
 const petChat = async (context, prompt) => {
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini-2024-07-18",
+      //   model: "gpt-4o-mini-2024-07-18",
+      model: "grok-2-latest",
       messages: [
         {
           role: "developer",
