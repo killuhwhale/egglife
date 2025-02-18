@@ -41,7 +41,8 @@ const petChat = async (context, prompt) => {
       model: "grok-2-latest",
       messages: [
         {
-          role: "developer",
+          //   role: "developer", // Open AI
+          role: "system", // Grok
           // 149 token  in the current prompt
 
           // Small message => 221 tokens total
