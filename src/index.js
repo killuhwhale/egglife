@@ -378,6 +378,10 @@ app.post("/saveGeneratedImage", async (req, res) => {
 
 app.post("/petChat", async (req, res) => {
   try {
+    const userID = req.body.userID; // [food, water, play, sleep]
+    const petIndex = req.body.petIndex; // [food, water, play, sleep]
+    // Eventually try to store chat messages... at least for 48hrs?
+
     const pet_message = await PetChat.petChat(
       req.body.context,
       req.body.message
