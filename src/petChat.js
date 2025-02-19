@@ -1,7 +1,5 @@
 const OpenAI = require("openai");
-const openai = new OpenAI({
-  baseURL: "https://api.x.ai/v1",
-});
+const openai = new OpenAI();
 
 const inputRate = 0.15 / 1_000_000;
 const outputRate = 0.6 / 1_000_000;
