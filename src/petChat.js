@@ -34,13 +34,14 @@ const thresholds = [
 
 const petChat = async (context, prompt, history) => {
   try {
+    console.log("\n\n Using histroy: ", ...(history ? history : []), "\n\n");
     const messages = [
       {
         role: "developer", // Open AI
         // role: "system", // Grok
         content: `The following phrase describes a user's pet. This is a fictional conversation between a human and their pet. The pet will be in a certain state based on 4 scores: Food, Water, Play and Sleep in the form [foodscore, waterscore, playscore, sleepscore]. These scores are given at the end of the users prompt and are on a scale from 0-100 the thresholds will be placed at the end. When the scores are above the thresholds, the pet is very satisfied. We only need to respond to the user and mention our states if the user asks us how we feel or how we are doing, if the dont ask dont tell! We will pretend to be the user's pet and the following context is the pet's personality and its scores to determine its state, so lets adapt and respond in the style of the following: ${context} Thresholds: ${thresholds}`,
       },
-      ...(history || []),
+      ...(history ? history : []),
       {
         role: "user",
         content: prompt,
