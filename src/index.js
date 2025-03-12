@@ -311,6 +311,10 @@ var storageRef = admin.storage().bucket();
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
+app.post("/IAP", async (req, res) => {
+  console.log("In app purchase req.body: ", req.body);
+  return res.json({ message: "success!" });
+});
 
 app.post("/generateImage", async (req, res) => {
   // Save to Google Drive Folder - User Generated Content: 1CnRt2mP-lmFiebto_zW_RsQSOeEi6hke
